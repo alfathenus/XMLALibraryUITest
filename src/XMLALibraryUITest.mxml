@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" 
+			   width="100%" height="100%">
+	
+	<s:layout>
+		<s:VerticalLayout horizontalAlign="left" />
+	</s:layout>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.xmlalibrary.builders.XMLADiscoverBuilder;
+			import com.xmlalibrary.builders.XMLAExecuteBuilder;
+			import com.xmlalibrary.constants.XMLAFunctions;
+			import com.xmlalibrary.constants.XMLARequesType;
+			import com.xmlalibrary.context.commands.StatementCommandContext;
+			import com.xmlalibrary.context.discovertype.DiscoverTypeContext;
+			import com.xmlalibrary.context.properties.DiscoverPropertyContext;
+			import com.xmlalibrary.context.properties.ExecutePropertyContext;
+			import com.xmlalibrary.context.restrictions.DimensionRestrictionContext;
+			import com.xmlalibrary.interfaces.IXMLACommandPart;
+			import com.xmlalibrary.interfaces.IXMLADiscoverTypePart;
+			import com.xmlalibrary.interfaces.IXMLAPart;
+			import com.xmlalibrary.interfaces.IXMLAPropertyPart;
+			import com.xmlalibrary.interfaces.IXMLARestrictionsPart;
+			import com.xmlalibrary.parts.XMLAPartFactory;
+			
+			private function propHandler():void {
+				var xml:XML;
+				var prop:IXMLAPropertyPart = XMLAPartFactory.getPropertyPart(XMLAFunctions.DISCOVER);
+				prop.add(DiscoverPropertyContext.DATA_SOURCE_INFO, "custom_source_info");
+				prop.add(DiscoverPropertyContext.FORMAT, "custom_format");
+				
+				xml = prop.generate();
+				
+				this.texto.text = xml.toXMLString();
+			}
+			
+			private function restHandler():void {
+				var prop:IXMLARestrictionsPart = XMLAPartFactory.getRestrictionPart(XMLARequesType.DIMENSION);
+				prop.add(DimensionRestrictionContext.CUBE_NAME,"custom_cube_name");
+				prop.add(DimensionRestrictionContext.DIMENSION_NAME, "custom_dimension_name");
+				prop.add(DimensionRestrictionContext.SCHEMA_NAME, "custom_schema_name");
+				
+				this.texto.text = prop.generate().toXMLString();
+			}
+			
+			private function discoverTypeHandler():void {
+				var prop:IXMLADiscoverTypePart = XMLAPartFactory.getDiscoverTypePart();//new XMLADiscoverTypePart();
+				
+				prop.add(DiscoverTypeContext.REQUEST_TYPE, XMLARequesType.DIMENSION);
+				
+				this.texto.text = prop.generate().toXMLString();
+			}
+			
+			private function statementHandler():void {
+				var prop:IXMLACommandPart = XMLAPartFactory.getCommandPart();//new XMLAPart();
+				
+				prop.add(StatementCommandContext.STATEMENT, "custom_statement");
+				
+				this.texto.text = prop.generate().toXMLString();
+			}
+			
+			private function discoverBuilderHandler():void {
+				var builder:XMLADiscoverBuilder = new XMLADiscoverBuilder();
+				
+				builder.setDiscoverTypePart(XMLAPartFactory.getDiscoverTypePart("custom_request_Type"));
+				builder.setRestrictionPart(XMLAPartFactory.getRestrictionPart(XMLARequesType.DIMENSION));
+				builder.setPropertiesPart(XMLAPartFactory.getPropertyPart(XMLAFunctions.DISCOVER));
+				
+				builder.addRestriction(DimensionRestrictionContext.CATALOG_NAME,"custom_catalog_name");
+				builder.addRestriction(DimensionRestrictionContext.CUBE_SOURCE, "custom_cube_source");
+				
+				builder.addProperty(DiscoverPropertyContext.DATA_SOURCE_INFO, "custom_data_source_info");
+				builder.addProperty(DiscoverPropertyContext.FORMAT, "custom_format");
+				
+				this.texto.text = builder.generate();
+			}
+			
+			private function executeBuilderHandler():void {
+				var builder:XMLAExecuteBuilder = new XMLAExecuteBuilder();
+				
+				builder.setCommandPart(XMLAPartFactory.getCommandPart());
+				builder.setPropertiesPart(XMLAPartFactory.getPropertyPart(XMLAFunctions.EXECUTE));
+				
+				builder.addProperty(ExecutePropertyContext.DATA_SOURCE_INFO, "custom_data_source_info");
+				builder.addProperty(ExecutePropertyContext.FORMAT, "custom_format");
+				
+				builder.addCommand(StatementCommandContext.STATEMENT, "custom_statement");
+				
+				this.texto.text = builder.generate();
+			}
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<s:HGroup>
+		<s:Button label="Properties" click="propHandler()" />
+		<s:Button label="Restrictions" click="restHandler()" />
+		<s:Button label="DicoverType" click="discoverTypeHandler()"/>
+		<s:Button label="CommandStatement" click="statementHandler()"/>
+		<s:Button label="DiscoverBuilder" click="discoverBuilderHandler()" />
+		<s:Button label="ExecuteBuilder" click="executeBuilderHandler()" />
+	</s:HGroup>
+	
+	<s:TextArea id="texto" width="100%" height="100%" />
+</s:Application>
